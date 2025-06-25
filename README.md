@@ -46,9 +46,9 @@ The variable passed as the first argument to the method may have any name, inclu
 is common in Python, `self`, although the use of `self` as the name of this argument on
 an instance method is just customary and the name has no significance.
 
-If using the `isinstance(<variable>, <class>)` check as described above is used simply
-substitute in the name of the first variable of a hybrid method for `<variable>` and the
-name of the class for `<class>`.
+If using the `isinstance(<variable>, <class>)` check as described above, substitute in
+the name of the first argument variable of a hybrid method for the `<variable>` place
+holder and the name of the class for the `<class>` place holder.
 
 #### Hybrid Methods: Usage
 
@@ -60,6 +60,14 @@ instance methods:
 from classicist import hybridmethod
 
 class hybridcollection(object):
+    """An example class to demonstrate one possible use of a hybridmethod; here we have
+    a list maintained at the class-level, accessible by all class instances as well as
+    available directly on the class itself, as well as instance-level lists maintained
+    individually by each instance of the class. The hybridmethod decorator allows the
+    same methods to operate on the lists, affecting the relevant list, either the class
+    or instance level list, based on whether the call was made directly on the class or
+    if the call was made on an instance of the class."""
+
     items: list[str] = []
 
     def __init__(self):
@@ -108,17 +116,17 @@ The Classicist library provides a `classproperty` method decorator that allows c
 methods to be accessed as class properties.
 
 The `@classproperty` decorator provided by the library wraps methods defined in classes
-using the usual `@decorator` syntax. Methods defined in classes that are decorated with
-the `@classproperty` decorator can then be accessed as though they were real properties
+using the usual `@` decorator syntax. Methods defined in classes that are decorated with
+the `@classproperty` decorator can then be accessed as though they are real properties
 on the class.
 
 The `@classproperty` decorator addresses the removal in Python 3.13 of the prior support
-for combining the `@classmethod` and `@property` decorators to create class properties,
+for combining the `@classmethod` and `@property` decorators to create class properties;
 a change which was made due to complexity in the underlying interpreter implementation.
 
 #### Class Properties: Usage
 
-To use the `classproperty` decorator import the decorator from the `classicist` library
+To use the `classproperty` decorator, import the decorator from the `classicist` library
 and use it to decorate any class methods you wish to access as class properties.
 
 ```python
@@ -128,14 +136,14 @@ class exampleclass(object):
     @classproperty
     def greeting(cls) -> str:
         """The 'greeting' class method has been decorated with classproperty so acts as
-        a property; here we could do some work to generate a return value."""
+        a property; we can do some potentially complex work to compute return value."""
         return "hello"
 
 assert isinstance(exampleclass, type)
 assert issubclass(exampleclass, exampleclass)
 assert issubclass(exampleclass, object)
 
-# We can access `.greeting` as though it was defined as a property:
+# We can now access `.greeting` as though it was defined as a property.
 # The return value of `.greeting` is indiscernible from the value being returned
 assert isinstance(exampleclass.greeting, str)
 assert exampleclass.greeting == "hello"
@@ -145,7 +153,7 @@ assert exampleclass.greeting == "hello"
 supporting class properties provided by this library, and to class properties which are
 supported natively in Python 3.9 – 3.12 by combining the `@classmethod` and `@property`
 decorators, is that unfortunately unless a custom metaclass is used to intervene, class
-properties can be overwritten by value assignment.
+properties can be overwritten by value assignment, just like regular attributes can be.
 
 This is a result of differences in Python's handling for descriptors between classes and
 instances of classes. For both classes and instances, the `__get__` descriptor is called
@@ -155,7 +163,18 @@ as would be the case for properties on instances where we can create our own set
 deleter methods in addition to the getter.
 
 This caveat can be remedied through a custom metaclass however, which overrides default
-behaviour, and is able to intercept the `__setattr_` and `__delattr__` calls as needed.
+behaviour, and is able to intercept the `__setattr__` and `__delattr__` calls as needed.
+
+The two code samples below illustrate the creation of a class property, `greeting`, via
+this library's `@classproperty` decorator, and compares this to a class property created
+natively in supported versions of Python by combining the `@classmethod` and `@property`
+decorators. The code samples then highlight the possibility in both cases of overwriting
+a class property by assigning a new value. The class property will be overwritten due to
+standard attribute assignment behaviour. As such, whether using natively supported class
+properties created by combining the `@classmethod` and `@property` decorators in Python
+versions that support such class properties, or if using the `@classproperty` decorator
+offered by this library, one must be mindful that a class property can be overwritten by
+value assignment, unless one uses a custom metaclass to prevent such behaviour:
 
 ```python
 from classicist import classproperty
@@ -174,8 +193,8 @@ exampleclass.greeting = "goodbye"
 assert exampleclass.greeting == "goodbye"
 ```
 
-As can be seen with the method of natively supporting class properties, they could also
-have their values reassigned without warning:
+As can be seen with the method of natively supporting class properties, class properties
+can also have their values reassigned without warning in just the same way:
 
 ```python
 import sys
@@ -183,8 +202,8 @@ import pytest
 
 # As Python only natively supported combining @classmethod and @property between version
 # 3.9 and 3.12, the example below is not usable on other versions, such as 3.13+
-if sys.version_info.major == 3 and not (9 <= sys.version_info.minor <= 12):
-    pytest.skip("This test can run on Python versions 3.9 – 3.12")
+if (sys.version_info.major == 3) and not (9 <= sys.version_info.minor <= 12):
+    pytest.skip("This test can only run on Python version 3.9 – 3.12")
 
 class exampleclass(object):
     @classmethod
