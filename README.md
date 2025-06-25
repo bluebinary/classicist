@@ -23,7 +23,7 @@ The Classicist library is available from PyPI, so may be added to a project's de
 #### Hybrid Methods
 
 The Classicist library provides a `@hybridmethod` method decorator that allows methods
-defined in a class to be used as both a class method and an instance method.
+defined in a class to be used as both class methods and as instance methods.
 
 The `@hybridmethod` decorator provided by the library wraps methods defined in classes
 using the usual `@` decorator syntax. Methods defined in classes that are decorated with
