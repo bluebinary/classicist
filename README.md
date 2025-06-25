@@ -22,11 +22,11 @@ The Classicist library is available from PyPI, so may be added to a project's de
 
 #### Hybrid Methods
 
-The Classicist library provides a `hybridmethod` method decorator that allows methods
+The Classicist library provides a `@hybridmethod` method decorator that allows methods
 defined in a class to be used as both a class method and an instance method.
 
 The `@hybridmethod` decorator provided by the library wraps methods defined in classes
-using the usual `@decorator` syntax. Methods defined in classes that are decorated with
+using the usual `@` decorator syntax. Methods defined in classes that are decorated with
 the `@hybridmethod` decorator can then be accessed as both class methods and as instance
 methods, with the first argument passed to the method being a reference to either the
 class when the method is called as a class method or to the instance when the method is
@@ -52,7 +52,7 @@ holder and the name of the class for the `<class>` place holder.
 
 #### Hybrid Methods: Usage
 
-To use the `hybridmethod` decorator import the decorator from the `classicist` library
+To use the `@hybridmethod` decorator import the decorator from the `classicist` library
 and use it to decorate the class methods you wish to use as both class methods and
 instance methods:
 
@@ -112,7 +112,7 @@ assert collection.get_combined_items() == ["ABC", "XYZ"]
 
 #### Class Properties
 
-The Classicist library provides a `classproperty` method decorator that allows class
+The Classicist library provides a `@classproperty` method decorator that allows class
 methods to be accessed as class properties.
 
 The `@classproperty` decorator provided by the library wraps methods defined in classes
@@ -126,7 +126,7 @@ a change which was made due to complexity in the underlying interpreter implemen
 
 #### Class Properties: Usage
 
-To use the `classproperty` decorator, import the decorator from the `classicist` library
+To use the `@classproperty` decorator import the decorator from the `classicist` library
 and use it to decorate any class methods you wish to access as class properties.
 
 ```python
