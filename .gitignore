@@ -1,0 +1,12 @@
+# Compiled Python Bytecode
+*.pyc
+
+# Build Artifacts
+build/**
+.pytest_cache/**
+**/dist
+**/*.egg-info/*
+
+# Environment Files
+.env
+!.env.*

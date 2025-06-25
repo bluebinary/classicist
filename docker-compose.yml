@@ -1,0 +1,29 @@
+x-volumes: &volumes
+  - ./source/classicist:/source/classicist
+  - ./source/classicist:/usr/local/lib/python/site-packages/classicist
+  - ./tests:/tests
+  - ./README.md:/README.md
+
+services:
+
+  black:
+    container_name: classicist-black
+    build:
+      dockerfile: ./Dockerfile
+      context: ./
+    image: classicist-black
+    environment:
+      - SERVICE=black
+    volumes:
+      *volumes
+
+  tests:
+    container_name: classicist-tests
+    build:
+      dockerfile: ./Dockerfile
+      context: ./
+    image: classicist-tests
+    environment:
+      - SERVICE=tests
+    volumes:
+      *volumes
