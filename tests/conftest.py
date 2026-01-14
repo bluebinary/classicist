@@ -10,8 +10,12 @@ import classicist
 
 # Override the default alpha sort of the test modules, into the order we wish to test
 TEST_MODULE_ORDER = [
-    "test_hybridmethod",
+    "test_aliased",
+    "test_annotation",
     "test_classproperty",
+    "test_deprecated",
+    "test_hybridmethod",
+    "test_shadowproof",
 ]
 
 

@@ -1,0 +1,2 @@
+class AnnotationError(AttributeError):
+    pass
