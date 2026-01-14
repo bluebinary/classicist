@@ -1,0 +1,2 @@
+class AliasError(AttributeError):
+    pass

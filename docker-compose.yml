@@ -17,6 +17,17 @@ services:
     volumes:
       *volumes
 
+  flakes:
+    container_name: classicist-flakes
+    build:
+      dockerfile: ./Dockerfile
+      context: ./
+    image: classicist-flakes
+    environment:
+      - SERVICE=flakes
+    volumes:
+      *volumes
+
   tests:
     container_name: classicist-tests
     build:

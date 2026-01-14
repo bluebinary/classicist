@@ -1,0 +1,2 @@
+class AttributeShadowingError(AttributeError):
+    pass
