@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from classicist.logging import logger
 from classicist.exceptions.decorators.annotation import AnnotationError
 
