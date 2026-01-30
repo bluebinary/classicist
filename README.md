@@ -6,7 +6,7 @@ The Classicist library provides several useful decorators and helper methods inc
  * `@classproperty` – a decorator that allow class methods to be accessed as class properties;
  * `@annotation` – a decorator that can be used to apply arbitrary annotations to code objects;
  * `@deprecated` – a decorator that can be used to mark functions, classes and methods as being deprecated;
- * `@alias` – a decorator that can be used to add aliases to class methods;
+ * `@alias` – a decorator that can be used to add aliases to classes, methods defined within classes, module-level functions, and nested functions when overriding the aliasing scope;
  * `@nocache` – a decorator that can be used to mark functions and methods as not being suitable for caching;
  * `shadowproof` – a metaclass that can be used to protect subclasses from class-level attributes
   being overwritten (or shadowed) which can otherwise negatively affect class behaviour in some cases.
