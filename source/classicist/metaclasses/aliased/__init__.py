@@ -1,4 +1,5 @@
 from classicist.logging import logger
+from classicist.exceptions.decorators.aliased import AliasError
 
 logger = logger.getChild(__name__)
 
@@ -30,7 +31,7 @@ class aliased(type):
             if aliases := getattr(value, "_classicist_aliases", None):
                 for alias in aliases:
                     if hasattr(cls, alias):
-                        raise AttributeError(
+                        raise AliasError(
                             f"Cannot create alias '{alias}' for method '{name}' as '{cls.__name__}.{alias}' already exists!"
                         )
 

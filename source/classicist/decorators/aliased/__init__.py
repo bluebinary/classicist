@@ -6,20 +6,29 @@ from typing import Callable
 from functools import wraps
 
 import keyword
+import inspect
+import sys
 
 logger = logger.getChild(__name__)
 
 
-def alias(*names: tuple[str]) -> Callable:
-    """Decorator that marks a method with one or more alias names. The decorator does
-    not modify the function – it simply records the aliases on the function object."""
+def alias(*names: tuple[str], scope: object = None) -> Callable:
+    """Decorator that applies one or more alias names to a class, function or method.
+    The decorator records the assigned aliases on the class, method or function object,
+    and where possible creates aliases in the same scope as the original class or module
+    level function directly as the decorator call runs. Methods within classes cannot be
+    aliased directly by the `@alias` decorator, but instead require the assistance of the
+    corresponding `aliased` metaclass that must be specified on the class definition. If
+    control over the scope is required, the optional `scope` keyword argument can be used
+    to specify the scope into which to apply the alias, this should be a reference to the
+    globals() or locals() at the site in code where the `@alias()` decorator is used."""
 
     for name in names:
         if not isinstance(name, str):
             raise AliasError(
                 "All @alias decorator name arguments must have a string value; non-string values cannot be used!"
             )
-        elif len(name) == 0:
+        elif len(name := name.strip()) == 0:
             raise AliasError(
                 "All @alias decorator name arguments must be valid Python identifier values; empty strings cannot be used!"
             )
@@ -32,19 +41,112 @@ def alias(*names: tuple[str]) -> Callable:
                 f"All @alias decorator name arguments must be valid Python identifier values; reserved keywords, such as '{name}' cannot be used!"
             )
 
-    def decorator(function: Callable) -> Callable:
-        function = unwrap(function)
+    def decorator(thing: object, *args, **kwargs) -> object:
+        nonlocal scope
 
-        if isinstance(aliases := getattr(function, "_classicist_aliases", None), tuple):
-            setattr(function, "_classicist_aliases", tuple([*aliases, *names]))
+        thing = unwrap(thing)
+
+        logger.info(f"@alias({names}) called on {thing}")
+
+        if isinstance(aliases := getattr(thing, "_classicist_aliases", None), tuple):
+            setattr(thing, "_classicist_aliases", tuple([*aliases, *names]))
         else:
-            setattr(function, "_classicist_aliases", names)
+            setattr(thing, "_classicist_aliases", names)
 
-        @wraps(function)
-        def wrapper(*args, **kwargs):
-            return function(*args, **kwargs)
+        @wraps(thing)
+        def wrapper_class(*args, **kwargs):
+            return thing  # (*args, **kwargs)
 
-        return wrapper
+        @wraps(thing)
+        def wrapper_method(*args, **kwargs):
+            return thing(*args, **kwargs)
+
+        @wraps(thing)
+        def wrapper_function(*args, **kwargs):
+            return thing  # (*args, **kwargs)
+
+        if inspect.isclass(thing):
+            if not scope:
+                scope = sys.modules.get(thing.__module__ or "__main__")
+
+            if isinstance(scope, object):
+                for name in names:
+                    if hasattr(scope, name):
+                        raise AliasError(
+                            "Cannot create alias '%s' for %s class in the %s module as an object with that name already exists!"
+                            % (
+                                name,
+                                thing,
+                                scope,
+                            )
+                        )
+
+                    # Create a module-level alias for the class
+                    if isinstance(scope, dict):
+                        scope[name] = thing
+                    else:
+                        setattr(scope, name, thing)
+
+            return wrapper_class(*args, **kwargs)
+        elif inspect.ismethod(thing):
+            return wrapper_method
+        elif inspect.isfunction(thing):
+            if not scope:
+                scope = sys.modules.get(thing.__module__ or "__main__")
+
+            if not scope:
+                logger.warning(f"No module found for {thing.__module__}!")
+
+                for module in sys.modules:
+                    logger.debug(f" => module => {module}")
+
+            # The qualified name for module-level functions only contain the name of the
+            # function, whereas functions nested within other functions or classes have
+            # names comprised of multiple parts separated by the "." character; because
+            # it is only currently possible to alias module-level functions, any nested
+            # or class methods are ignored during this stage of the aliasing process.
+            if len(thing.__qualname__.split(".")) > 1:
+                logger.warning(
+                    "Unable to apply alias to functions defined beyond the top-level of a module: %s!"
+                    % (thing.__qualname__)
+                )
+
+                return wrapper_function(*args, **kwargs)
+
+            # if signature := inspect.signature(thing):
+            #     if len(parameters := signature.parameters) > 0 and "self" in parameters:
+            #         return wrapper_function(*args, **kwargs)
+
+            if isinstance(scope, object):
+                # At this point we should only be left with module-level functions to alias
+                for name in names:
+                    # Ensure the scope doesn't already contain an object of the same name
+                    if hasattr(scope, name):
+                        raise AliasError(
+                            "Cannot create alias '%s' for %s function in the %s module as an object with that name already exists!"
+                            % (
+                                name,
+                                thing,
+                                scope,
+                            )
+                        )
+
+                    logger.info(f"Added alias '{name}' to {scope}.{thing}")
+
+                    if isinstance(scope, dict):
+                        scope[name] = thing
+                    elif isinstance(scope, object):
+                        setattr(scope, name, thing)
+            else:
+                logger.warning(
+                    f"No scope was found or specified for {thing} into which to assign the alias!"
+                )
+
+            return wrapper_function(*args, **kwargs)
+        else:
+            raise AliasError(
+                "The @alias decorator can only be applied to classes, methods and functions!"
+            )
 
     return decorator
 

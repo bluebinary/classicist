@@ -232,28 +232,67 @@ assert exampleclass.greeting == "goodbye"
 
 #### Class Method Alias Decorator & Metaclass: Add Aliases to Methods
 
-The `@alias` decorator can be used to add method name aliases to methods defined within
-classes, such that both the original name and any defined aliases can be used to access
-the method at runtime. The `@alias` decorator cannot be used for methods defined outside
-of classes as the aliases are created as additional class attributes scoped to the class.
+The `@alias` decorator can be used to add aliases to classes, methods defined within
+classes, and module-level functions, such that both the original name and any defined
+aliases can be used to access the same code object at runtime.
 
-To use the `@alias` decorator, it is necessary to set the containing class' metaclass to
-the `aliased` metaclass provided by the `classicist` library; the metaclass iterates
-through the class namespace during parse time and sets up the aliases as additional
-attributes on the class so that the aliased methods are available at runtime via both
-their original name and their aliases.
+To alias a class or a module-level function, that is a function defined at the top-level
+of a module file (rather than nested within a function or class), simply decorate the 
+class or module-level function with the `@alias(...)` decorator and specify the one or
+more name aliases for the code object as one or more string arguments passed into the
+decorator method.
+
+To use the `@alias` decorator on methods defined within a class, it is also necessary to
+set the containing class' metaclass to the `aliased` metaclass provided by the `classicist`
+library; the metaclass iterates through the class namespace during parse time and sets up
+the aliases as additional attributes on the class so that the aliased methods are available
+at runtime via both their original name and their aliases.
 
 The example below demonstrates adding an alias to a method defined within a class, and
 using the `aliased` metaclass when defining the class to ensure that the alias is parsed
 and translated to an additional class attribute so that the method is accessible via its
 original name and the alias at runtime.
 
+If control over the scope is required, the optional `scope` keyword argument can be
+used to specify the scope into which to apply the alias, this must be a reference to
+the globals() or locals() at the point in code where the `@alias()` decorator is used.
+
 ```python
 from classicist import aliased, alias, is_aliased, aliases
 
-class Welcome(object, metaclass=aliased):
+# Define an alias on a module-level method; as this demonstration occurs
+# within the README file which is parsed by and run within an external
+# scope by pytest and pytest-codeblocks, we override the scope within
+# which to apply the alias otherwise the alias would be assigned within
+# an external scope which would prevent the alias from working; however
+# it is rare to need to override the inferred scope, and aliasing of
+# module-level functions defined within actual modules will work normally;
+# for rare cases where overriding scope is necessary the optional `scope`
+# keyword-only argument can be used as shown below.
+@alias("sums", scope=globals())
+def adds(a: int, b: int) -> int:
+    return a + b
+
+assert globals().get("adds") is adds
+assert globals().get("sums") is sums
+assert adds is sums
+assert adds(1, 2) == 3
+assert sums(1, 2) == 3
+
+# Define an alias on a class
+@alias("Color")
+class Colour(object):
+    pass
+
+assert Colour is Color
+
+# Define an alias on a method defined within a class;
+# this also requires the use of the aliased metaclass
+# which is responsible for adding the aliases within
+# the scope of the class once the class has been parsed
+class Welcome(metaclass=aliased):
     @alias("greet")
-    def hello(self, name: str):
+    def hello(self, name: str) -> str:
         return f"Hello {name}!"
 
 assert is_aliased(Welcome.hello) is True
@@ -272,7 +311,9 @@ assert welcome.greet("you") == "Hello you!"
 
 ⚠️ Note: Aliases must be valid Python identifiers, following the same rules as for all
 other function and method names and aliases cannot be reserved keywords. If an invalid
-alias is specified an `AliasError` exception will be raised at runtime.
+alias is specified an `AliasError` exception will be raised at runtime. Furthermore, if
+a name has already been used in the current scope, an `AliasError` exception will be
+raised at runtime.
 
 #### Annotation Decorator: Add Arbitrary Annotations to Code Objects
 
