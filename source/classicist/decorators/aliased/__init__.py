@@ -145,7 +145,8 @@ def alias(*names: tuple[str], scope: object = None) -> Callable:
             return wrapper_function(*args, **kwargs)
         else:
             raise AliasError(
-                "The @alias decorator can only be applied to classes, methods and functions!"
+                "The @alias decorator can only be applied to classes, methods and functions, not %s!"
+                % (type(thing))
             )
 
     return decorator

@@ -6,7 +6,6 @@ import sys
 import types
 import conftest
 
-
 # Obtain a reference to the current module
 module = sys.modules[__name__]
 assert isinstance(module, types.ModuleType)
