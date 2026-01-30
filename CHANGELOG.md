@@ -1,5 +1,9 @@
 # Classicist Library Change Log
 
+## [1.0.2] - 2026-01-29
+### Added
+- Added support for aliasing classes and module-level functions, in addition to the earlier support provided by the library for aliasing methods defined within classes.
+
 ## [1.0.1] - 2026-01-12
 ### Added
 - Added support for creating method aliases on classes via the new `@alias()` decorator
