@@ -230,11 +230,12 @@ exampleclass.greeting = "goodbye"
 assert exampleclass.greeting == "goodbye"
 ```
 
-#### Class Method Alias Decorator & Metaclass: Add Aliases to Methods
+#### Alias Decorator & Metaclass: Add Aliases to Classes, Methods & Functions
 
 The `@alias` decorator can be used to add aliases to classes, methods defined within
-classes, and module-level functions, such that both the original name and any defined
-aliases can be used to access the same code object at runtime.
+classes, module-level functions, and nested functions when overriding the aliasing scope
+such that both the original name and any defined aliases can be used to access the same
+code object at runtime.
 
 To alias a class or a module-level function, that is a function defined at the top-level
 of a module file (rather than nested within a function or class), simply decorate the 
@@ -254,8 +255,8 @@ and translated to an additional class attribute so that the method is accessible
 original name and the alias at runtime.
 
 If control over the scope is required, the optional `scope` keyword argument can be
-used to specify the scope into which to apply the alias, this must be a reference to
-the globals() or locals() at the point in code where the `@alias()` decorator is used.
+used to specify the scope into which to apply the alias, this must be a reference to the
+globals() or locals() at the point in code where the `@alias(...)` decorator is used.
 
 ```python
 from classicist import aliased, alias, is_aliased, aliases
