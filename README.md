@@ -240,23 +240,24 @@ code object at runtime.
 To alias a class or a module-level function, that is a function defined at the top-level
 of a module file (rather than nested within a function or class), simply decorate the 
 class or module-level function with the `@alias(...)` decorator and specify the one or
-more name aliases for the code object as one or more string arguments passed into the
-decorator method.
+more name aliases for the class or function as one or more string arguments passed into
+the decorator method.
 
 To use the `@alias` decorator on methods defined within a class, it is also necessary to
 set the containing class' metaclass to the `aliased` metaclass provided by the `classicist`
-library; the metaclass iterates through the class namespace during parse time and sets up
+library; the metaclass iterates through the class' namespace during parse time and sets up
 the aliases as additional attributes on the class so that the aliased methods are available
-at runtime via both their original name and their aliases.
+at runtime via both their original name and any aliases.
 
 The examples below demonstrate adding an alias to a module-level function, a class and a
 method defined within a class, and using the `aliased` metaclass when defining a class
-that contains aliased methods to ensure that the alias is parsed and translated to an additional class attribute so that the method is accessible via its original name and
-the alias at runtime.
+that contains aliased methods to ensure that any aliases are parsed and translated to
+additional class attributes so that the method is accessible via its original name and
+any alias at runtime.
 
 If control over the scope is required, usually for nested functions, the optional `scope`
-keyword argument can be used to specify the scope into which to apply the alias; this must
-be a reference to `globals()` or `locals()` at the point in code where the `@alias(...)`
+keyword-only argument can be used to specify the scope into which to apply the alias; this
+must be a reference to `globals()` or `locals()` at the point in code where the `@alias(...)`
 decorator is applied to the nested function.
 
 ```python
