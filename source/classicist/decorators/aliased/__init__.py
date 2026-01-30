@@ -88,7 +88,7 @@ def alias(*names: tuple[str], scope: object = None) -> Callable:
                         setattr(scope, name, thing)
 
             return wrapper_class(*args, **kwargs)
-        elif inspect.ismethod(thing):
+        elif inspect.ismethod(thing) or isinstance(thing, classmethod):
             return wrapper_method
         elif inspect.isfunction(thing):
             if not scope:
