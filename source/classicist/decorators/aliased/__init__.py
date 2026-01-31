@@ -46,7 +46,7 @@ def alias(*names: tuple[str], scope: object = None) -> Callable:
 
         thing = unwrap(thing)
 
-        logger.info(f"@alias({names}) called on {thing}")
+        logger.debug(f"@alias({names}) called on {thing}")
 
         if isinstance(aliases := getattr(thing, "_classicist_aliases", None), tuple):
             setattr(thing, "_classicist_aliases", tuple([*aliases, *names]))
@@ -55,7 +55,7 @@ def alias(*names: tuple[str], scope: object = None) -> Callable:
 
         @wraps(thing)
         def wrapper_class(*args, **kwargs):
-            return thing  # (*args, **kwargs)
+            return thing
 
         @wraps(thing)
         def wrapper_method(*args, **kwargs):
@@ -63,7 +63,7 @@ def alias(*names: tuple[str], scope: object = None) -> Callable:
 
         @wraps(thing)
         def wrapper_function(*args, **kwargs):
-            return thing  # (*args, **kwargs)
+            return thing
 
         if inspect.isclass(thing):
             if not scope:
@@ -94,24 +94,18 @@ def alias(*names: tuple[str], scope: object = None) -> Callable:
             if not scope:
                 scope = sys.modules.get(thing.__module__ or "__main__")
 
-            if not scope:
-                logger.warning(f"No module found for {thing.__module__}!")
+                # The qualified name for module-level functions only contain the name of the
+                # function, whereas functions nested within other functions or classes have
+                # names comprised of multiple parts separated by the "." character; because
+                # it is only currently possible to alias module-level functions, any nested
+                # or class methods are ignored during this stage of the aliasing process.
+                if len(thing.__qualname__.split(".")) > 1:
+                    logger.debug(
+                        "Unable to apply alias to functions defined beyond the top-level of a module: %s!"
+                        % (thing.__qualname__)
+                    )
 
-                for module in sys.modules:
-                    logger.debug(f" => module => {module}")
-
-            # The qualified name for module-level functions only contain the name of the
-            # function, whereas functions nested within other functions or classes have
-            # names comprised of multiple parts separated by the "." character; because
-            # it is only currently possible to alias module-level functions, any nested
-            # or class methods are ignored during this stage of the aliasing process.
-            if len(thing.__qualname__.split(".")) > 1:
-                logger.warning(
-                    "Unable to apply alias to functions defined beyond the top-level of a module: %s!"
-                    % (thing.__qualname__)
-                )
-
-                return wrapper_function(*args, **kwargs)
+                    return wrapper_function(*args, **kwargs)
 
             # if signature := inspect.signature(thing):
             #     if len(parameters := signature.parameters) > 0 and "self" in parameters:
@@ -131,7 +125,7 @@ def alias(*names: tuple[str], scope: object = None) -> Callable:
                             )
                         )
 
-                    logger.info(f"Added alias '{name}' to {scope}.{thing}")
+                    logger.debug(f"Added alias '{name}' to {scope}.{thing}")
 
                     if isinstance(scope, dict):
                         scope[name] = thing
@@ -139,7 +133,7 @@ def alias(*names: tuple[str], scope: object = None) -> Callable:
                         setattr(scope, name, thing)
             else:
                 logger.warning(
-                    f"No scope was found or specified for {thing} into which to assign the alias!"
+                    f"No scope was found or specified for {thing} into which to assign aliases!"
                 )
 
             return wrapper_function(*args, **kwargs)
