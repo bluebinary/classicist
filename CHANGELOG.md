@@ -1,8 +1,13 @@
 # Classicist Library Change Log
 
+## [1.0.3] - 2026-01-30
+### Updated
+- Improved logging for aliasing functionality.
+
 ## [1.0.2] - 2026-01-29
 ### Added
-- Added support for aliasing classes and module-level functions, in addition to the earlier support provided by the library for aliasing methods defined within classes.
+- Added support for aliasing classes and module-level functions, in addition to the
+earlier support provided by the library for aliasing methods defined within classes.
 
 ## [1.0.1] - 2026-01-12
 ### Added
