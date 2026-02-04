@@ -1,5 +1,13 @@
 # Classicist Library Change Log
 
+## [1.0.4] - 2026-02-03
+### Added
+- Added support for the new `@runtimer` decorator which can be used to gather run times
+for functions, class methods and instance methods.
+
+### Updated
+- Improved top-level import availability for the `AliasError` and `AnnotationError` classes.
+
 ## [1.0.3] - 2026-01-30
 ### Updated
 - Improved logging for aliasing functionality.

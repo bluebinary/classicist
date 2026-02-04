@@ -8,6 +8,7 @@ The Classicist library provides several useful decorators and helper methods inc
  * `@deprecated` – a decorator that can be used to mark functions, classes and methods as being deprecated;
  * `@alias` – a decorator that can be used to add aliases to classes, methods defined within classes, module-level functions, and nested functions when overriding the aliasing scope;
  * `@nocache` – a decorator that can be used to mark functions and methods as not being suitable for caching;
+ * `@runtimer` – a decorator that can be used to time function and method calls;
  * `shadowproof` – a metaclass that can be used to protect subclasses from class-level attributes
   being overwritten (or shadowed) which can otherwise negatively affect class behaviour in some cases.
 
@@ -447,6 +448,48 @@ class Test(object):
     @nocache
     def computation(self) -> int:
         pass
+```
+
+#### Runtimer: Function & Method Call Timing
+
+The `@runtimer` decorator can be used to obtain run times for function and method calls,
+including the start and stop `datetime`, the `timedelta` and the duration in seconds.
+
+To collect timing information simply import the `runtimer` decorator from the library,
+and apply it to the function, class method or instance method that you wish to time, and
+after the call has been made, you can obtain the run time information from the function
+or method via the `classicist` library's `runtime` helper method, which provides access
+to an instance of the library's `Runtimer` class which is used to track the run time:
+
+```python
+from classicist import runtimer, runtime, Runtimer
+from datetime import datetime
+from time import sleep
+
+@runtimer
+def function_to_time(value: int) -> int:
+  sleep(0.01)
+  return value * 100
+
+# Obtain a reference to the function's Runtimer (created by the @runtimer decorator)
+# This reference can be obtained before or after a call to the decorated function
+runtimer: Runtimer = runtime(function_to_time)
+assert isinstance(runtimer, Runtimer)
+
+# Obtain the time before the function call for illustrative purposes (not needed in use)
+started: datetime = datetime.now()
+
+# Call the method to perform its work, and its runtime will be gathered
+assert function_to_time(2) == 200
+
+# Obtain the time after the function call for illustrative purposes (not needed in use)
+stopped: datetime = datetime.now()
+
+# Use the gathered runtime information as needed
+assert runtimer.started > started
+assert runtimer.duration >= 0.01
+assert runtimer.timedelta.total_seconds() >= 0.01
+assert runtimer.stopped < stopped
 ```
 
 #### ShadowProof: Attribute Shadowing Protection Metaclass

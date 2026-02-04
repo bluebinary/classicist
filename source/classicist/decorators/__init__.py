@@ -4,6 +4,7 @@ from classicist.decorators.classproperty import classproperty
 from classicist.decorators.deprecated import deprecated, is_deprecated
 from classicist.decorators.hybridmethod import hybridmethod
 from classicist.decorators.nocache import nocache
+from classicist.decorators.runtimer import Runtimer, runtimer, runtime, has_runtimer
 
 __all__ = [
     "alias",
@@ -17,4 +18,8 @@ __all__ = [
     "is_deprecated",
     "hybridmethod",
     "nocache",
+    "Runtimer",
+    "runtimer",
+    "runtime",
+    "has_runtimer",
 ]
