@@ -1,16 +1,19 @@
 # Classicist: Classy Class Decorators & Extensions
 
-The Classicist library provides several useful decorators and helper methods including:
+The Classicist library provides several useful decorators, functions, classes, and types
+that offer useful behaviours and functionality, and help to fill some of the gaps in the
+current standard library:
 
  * `@hybridmethod` – a decorator that allows methods to be used both as class methods and as instance methods;
- * `@classproperty` – a decorator that allow class methods to be accessed as class properties;
+ * `@classproperty` – a decorator that allows class methods to be accessed as class properties;
  * `@annotation` – a decorator that can be used to apply arbitrary annotations to code objects;
- * `@deprecated` – a decorator that can be used to mark functions, classes and methods as being deprecated;
+ * `@deprecated` – a decorator that can be used to mark functions, classes and methods as being deprecated, with support for adding optional arbitrary annotations;
  * `@alias` – a decorator that can be used to add aliases to classes, methods defined within classes, module-level functions, and nested functions when overriding the aliasing scope;
  * `@nocache` – a decorator that can be used to mark functions and methods as not being suitable for caching;
- * `@runtimer` – a decorator that can be used to time function and method calls;
+ * `@runtimer` – a decorator that can be used to gather call run time information for function and method calls;
  * `shadowproof` – a metaclass that can be used to protect subclasses from class-level attributes
-  being overwritten (or shadowed) which can otherwise negatively affect class behaviour in some cases.
+  being overwritten (or shadowed) which can otherwise negatively affect class behaviour in some cases;
+* `Null` – an alternative to `None`, useful when building custom data model classes and libraries, where supporting "null-safe" style access and navigation of the model's nested hierarchy is preferred.
 
 The `classicist` library was previously named `hybridmethod` so if a prior version had
 been installed, please update references to the new library name. Installation of the
@@ -519,6 +522,146 @@ try:
 except AttributeShadowingError as exception:
     # The AttributeShadowingError is expected as the `example` attribute was modified!
     pass
+```
+
+#### NullType: Null-Safe Style Access for Data Models and Nested Class Hierarchies
+
+The `NullType` class supports the creation of a `Null` singleton instance that offers
+support for safely chaining nested attribute accesses without raising exceptions for
+attributes that have no inherent value.
+
+As Python currently lacks a null-aware navigation operator, such as `?.`, unlike many
+other dynamic languages, for safely navigating nested object hierarchies which may
+contain null attributes, the library offers the `NullType` and `Null` singleton as a
+potential option to support this need in the interim. Consistent use of the `Null`
+singleton in place of the standard `None` singleton, in relevant scenarios, such as
+within a custom data model library, can allow for more expressive and clearer code that
+does not require endless checks for intermediary or nested attribute existence.
+
+However, there are some caveats to the use of the `NullType` and `Null` singleton as
+these are not built-in features of the language, and Python does not offer support for
+the creation of custom operators nor overriding the `is` operator for identity checking
+which limits some of the use cases in which the `Null` singleton can be used.
+
+With knowledge of these caveats and in the right scenarios, the `Null` singleton can
+offer a good way to achieve clearer and more expressive code while navigating nested
+object hierarchies without the clutter of nested attribute existence checks.
+
+```python
+from __future__ import annotations
+
+from classicist import Null
+
+data: dict = {
+  "id": 1,
+  "name": "A",
+  "related": {
+    "id": 2,
+    "name": "B",
+    "related": {
+      "id": 3,
+      "name": "C",
+    },
+  },
+}
+
+class Model(object):
+  """Sample Model class with some properties that reference nested Model instances."""
+
+  def __init__(self, data: dict):
+    if not isinstance(data, dict):
+      raise TypeError("The 'data' argument must reference a valid data dictionary!")
+
+    if not ("id" in data and isinstance(data["id"], int)):
+      raise ValueError("The 'data' must contain an 'id' key with an integer value!")
+
+    if not ("name" in data and isinstance(data["name"], str)):
+      raise ValueError("The 'data' must contain an 'name' key with an string value!")
+
+    self.data = data
+
+  @property
+  def id(self) -> int:
+    return self.data["id"]
+
+  @property
+  def name(self) -> str:
+    return self.data["name"]
+
+  @property
+  def related(self) -> Model | Null:
+    if data := self.data.get("related"):
+      return Model(data=data)
+    else:
+      return Null
+
+  @property
+  def relates(self) -> Model | Null:
+    if data := self.data.get("relates"):
+      return Model(data=data)
+    else:
+      return Null
+
+# Create an instance of the sample Model data class
+model = Model(data=data)
+
+# Check that the expected data attributes are available
+assert model.id == 1
+assert model.name == "A"
+
+# The model.related property references A/1 in the data above, so these properties exist
+assert model.related
+assert model.related.id
+assert model.related.name
+
+# Ensure the nested property values are as expected
+assert model.related.id == 2
+assert model.related.name == "B"
+
+# Note that model.relates had no corresponding data, so the Model returns `Null` which
+# still allows for nested attribute access, such as to `.id` and `.name` without raising
+# any exceptions; the `Null` singleton also allows for `bool` comparison as shown below:
+assert not model.relates
+assert not model.relates.id
+assert not model.relates.name
+
+# There is no limit to the levels of nesting that `NullType` and the `Null` singleton
+# can support, so long as a custom data model or library consistently returns `Null` for
+# cases where the "null-safe" navigation is desired:
+
+# model.related.related references 3/C in the data above, so these properties exist
+assert model.related.related.id
+assert model.related.related.name
+
+# model.related.relates was not specified in the data above so the Model returns `Null`
+assert not model.related.relates.id
+assert not model.related.relates.name
+
+# Ensure the nested property values are as expected
+assert model.related.related.id == 3
+assert model.related.related.name == "C"
+
+# These features make it easy to write clearer more expressive code without boilerplate
+# code to check for the availability of nested attributes or entities:
+if isinstance(name := model.related.name, str):
+  print("model.related.name => %s" % (name))
+
+# No exception is raised here even though model.relates is effectively "null":
+if isinstance(name := model.relates.name, str):
+  print("model.relates.name => %s" % (name))
+
+# However, there are some caveats as noted with `NullType` and the `Null` singleton as
+# these are a third-party solution so we can only go so far in supplementing null-safe
+# operator behaviour in the language; for example, we cannot perform identity checks to
+# boolean values, True or False, or the actual None singleton value:
+assert not model.relates is True  # Notice the `assert not` as `assert` would fail here
+assert not model.relates is False  # Notice the `assert not` as `assert` would fail here
+
+# Furthermore, we cannot use `None` identity comparison either:
+assert not model.relates is None  # Notice the `assert not` as `assert` would fail here
+
+# We can however perform an identity check against the `Null` singleton if needed:
+assert model.relates is Null
 ```
 
 ### Unit Tests

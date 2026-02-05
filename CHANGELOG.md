@@ -1,12 +1,17 @@
 # Classicist Library Change Log
 
+## [1.0.5] - 2026-02-04
+### Added
+- Added support for creating custom data model classes and libraries that support nested
+and arbitrary attribute access without raising exceptions when accessing attributes that
+would otherwise return `None` via the new `Null` singleton. This can be used instead of
+the `None` singleton in scenarios where "null-safe" navigation is useful, and allows for
+writing clearer and more expressive code without nested attribute existence checks.
+
 ## [1.0.4] - 2026-02-03
 ### Added
-- Added support for the new `@runtimer` decorator which can be used to gather run times
-for functions, class methods and instance methods.
-
-### Updated
-- Improved top-level import availability for the `AliasError` and `AnnotationError` classes.
+- Added support for the `@runtimer` decorator which can be used to gather function call
+run times of decorated functions, class methods, and instance methods.
 
 ## [1.0.3] - 2026-01-30
 ### Updated

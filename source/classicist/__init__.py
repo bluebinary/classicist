@@ -49,6 +49,11 @@ from classicist.exceptions import (
     AttributeShadowingError,
 )
 
+from classicist.types import (
+    NullType,
+    Null,
+)
+
 __all__ = [
     # Decorators
     "alias",
@@ -75,4 +80,7 @@ __all__ = [
     "AliasError",
     "AnnotationError",
     "AttributeShadowingError",
+    # Types
+    "NullType",
+    "Null",
 ]
