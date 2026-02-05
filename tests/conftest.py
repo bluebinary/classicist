@@ -16,7 +16,9 @@ TEST_MODULE_ORDER = [
     "test_classproperty",
     "test_deprecated",
     "test_hybridmethod",
+    "test_runtimer",
     "test_shadowproof",
+    "test_nulltype",
 ]
 
 
