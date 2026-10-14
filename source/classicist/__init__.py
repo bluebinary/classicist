@@ -4,6 +4,8 @@ from classicist.decorators import (
     alias,
     # @annotation decorator
     annotation,
+    # @cache decorator
+    cache,
     # @classproperty decorator
     classproperty,
     # @deprecated decorator

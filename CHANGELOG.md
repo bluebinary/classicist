@@ -1,5 +1,9 @@
 # Classicist Library Change Log
 
+## [1.0.6] - 2026-10-14
+### Added
+- Added support for leak-proof class instance method and property return value caching.
+
 ## [1.0.5] - 2026-02-04
 ### Added
 - Added support for creating custom data model classes and libraries that support nested

@@ -1,5 +1,6 @@
 from classicist.decorators.aliased import alias, aliases, is_aliased
 from classicist.decorators.annotation import annotate, annotation, annotations
+from classicist.decorators.caching import cache
 from classicist.decorators.classproperty import classproperty
 from classicist.decorators.deprecated import deprecated, is_deprecated
 from classicist.decorators.hybridmethod import hybridmethod
@@ -12,6 +13,7 @@ __all__ = [
     "annotate",
     "annotation",
     "annotations",
+    "cache",
     "classproperty",
     "deprecated",
     "is_aliased",
