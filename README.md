@@ -9,6 +9,7 @@ current standard library:
  * `@annotation` – a decorator that can be used to apply arbitrary annotations to code objects;
  * `@deprecated` – a decorator that can be used to mark functions, classes and methods as being deprecated, with support for adding optional arbitrary annotations;
  * `@alias` – a decorator that can be used to add aliases to classes, methods defined within classes, module-level functions, and nested functions when overriding the aliasing scope;
+ * `@cache` – a leak-proof cache for class instance method and property return values;
  * `@nocache` – a decorator that can be used to mark functions and methods as not being suitable for caching;
  * `@runtimer` – a decorator that can be used to gather call run time information for function and method calls;
  * `shadowproof` – a metaclass that can be used to protect subclasses from class-level attributes
@@ -431,6 +432,34 @@ assert is_deprecated(Test.new) is False
 
 # The annotations can be obtained and accessed by using the `annotations` helper method:
 assert annotations(Test.old) == dict(since="01/01/2026")
+```
+
+#### Cache Decorator: Leak-Proof Class Instance Method and Property Return Value Cache
+
+The `@cache` decorator can be used to cache the return values of class instance methods
+and properties in a leak-proof cache that has the same lifetime as the class instance
+itself and is garbage collected automatically when the class instance goes out of scope.
+
+The `@cache` decorator can be used as follows:
+
+```python
+from classicist import cache
+import time
+
+class Test(object):
+    @cache
+    def expensive_computation(self) -> int:
+        time.sleep(3)  # simulate an expensive computation
+        print(" > Completed at %s" % time.time())
+        return 123
+
+test = Test()
+
+print("1st Run at %s" % time.time())
+print(test.expensive_computation())
+
+print("2nd Run at %s" % time.time())
+print(test.expensive_computation())
 ```
 
 #### No Cache Decorator: Mark Functions and Methods as "Not Cacheable"
